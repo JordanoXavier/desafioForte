@@ -41,6 +41,66 @@ const Button = styled.button`
 `;
 
 
+const calcularPreco = (user) => {
+  let preço;
+      try{
+        //separando hora:min e dia/mês
+        let entrada = user.entrada.value.split("-");
+        let saida = user.saida.value.split("-");
+
+        let entradaHora = entrada[0].split(":");
+        let saidaHora = saida[0].split(":");
+
+        let entradaDia = entrada[1].split("/");
+        let saidaDia = saida[1].split("/");
+
+        //separando hora e min
+        let entradaMin = entradaHora[1];
+        let saidaMin = saidaHora[1];
+        entradaHora = entradaHora[0];
+        saidaHora = saidaHora[0];
+
+        //separando dia e mês
+        let entradaMes = entradaDia[1];
+        let saidaMes = saidaDia[1];
+        entradaDia = entradaDia[0];
+        saidaDia = saidaDia[0];
+
+
+        //calculando a diferença entre a entrada e a saída
+        let diferençaDias = saidaDia - entradaDia;
+        let diferençaMeses = saidaMes - entradaMes;
+        let diferençaHoras = saidaHora - entradaHora;
+        let diferençaMinutos = saidaMin - entradaMin;
+        if (diferençaMinutos < 0) {
+          diferençaMinutos += 60;
+          diferençaHoras--;
+        }
+        if (diferençaHoras < 0) {
+          diferençaHoras += 24;
+          diferençaDias--;
+        }
+        if (diferençaDias < 0) {
+          diferençaDias += 30;
+          diferençaMeses--;
+        }
+
+        if (diferençaMinutos > 0){ //arredondar os minutos para cima conforme solicitado
+          diferençaHoras++;
+          diferençaMinutos = 0;
+        } 
+        
+        preço = diferençaMeses * 30 * 24 * 5 + diferençaDias * 24 * 5 + diferençaHoras * 5 + diferençaMinutos * 5 / 60;
+
+        preço = "R$ " + preço.toFixed(2);
+      }
+      catch{
+        return 0;
+      }  
+  return preço;
+}
+
+
 const Form = ({ getUsers, onEdit, setOnEdit }) => {
   const ref = useRef();
 
@@ -54,7 +114,7 @@ const Form = ({ getUsers, onEdit, setOnEdit }) => {
     }
   }, [onEdit]);
 
-  const handleSubmit = async (e) => { // Função que vai salvar o usuário
+  const handleSubmit = async (e) => { // Função que vai salvar o usuário pelo botão
     e.preventDefault();
 
     const user = ref.current;
@@ -65,6 +125,13 @@ const Form = ({ getUsers, onEdit, setOnEdit }) => {
       return toast.warn("Preencha a Placa e a Entrada");
     }
 
+    let preço;
+    if (user.saida.value){ //se tiver a hora de saida
+      preço = calcularPreco(user); //vai calcular o valor a ser pago, se possível
+      if (preço==0) 
+        return toast.warn("Preencha corretamente os campos de entrada e saída ");
+    }
+
 
     //UPDATE
     if (onEdit) { // Se onEdit estiver ligado, ele vai fazer um PUT, senão, um POST
@@ -73,80 +140,19 @@ const Form = ({ getUsers, onEdit, setOnEdit }) => {
           placa: user.placa.value,
           entrada: user.entrada.value,
           saida: user.saida.value,
+          valor : preço //valor calculado acima
         })
         .then(({ data }) => toast.success(data)) //data é a mensagem de sucesso que vem do backend 
         .catch(({ data }) => toast.error(data));
 
     } else { 
-    
-      let preço;
-      if (user.saida.value) { //se o usuário preencher o campo de saída, ele vai calcular o preço
-        //data no fomato "hora:min-dia/mês"
-        //5 reais por hora
-        try{
-          //separando hora:min e dia/mês
-          let entrada = user.entrada.value.split("-");
-          let saida = user.saida.value.split("-");
-
-          let entradaHora = entrada[0].split(":");
-          let saidaHora = saida[0].split(":");
-
-          let entradaDia = entrada[1].split("/");
-          let saidaDia = saida[1].split("/");
-
-          //separando hora e min
-          let entradaMin = entradaHora[1];
-          let saidaMin = saidaHora[1];
-          entradaHora = entradaHora[0];
-          saidaHora = saidaHora[0];
-
-          //separando dia e mês
-          let entradaMes = entradaDia[1];
-          let saidaMes = saidaDia[1];
-          entradaDia = entradaDia[0];
-          saidaDia = saidaDia[0];
-
-
-          //calculando a diferença entre a entrada e a saída
-          let diferençaDias = saidaDia - entradaDia;
-          let diferençaMeses = saidaMes - entradaMes;
-          let diferençaHoras = saidaHora - entradaHora;
-          let diferençaMinutos = saidaMin - entradaMin;
-          if (diferençaMinutos < 0) {
-            diferençaMinutos += 60;
-            diferençaHoras--;
-          }
-          if (diferençaHoras < 0) {
-            diferençaHoras += 24;
-            diferençaDias--;
-          }
-          if (diferençaDias < 0) {
-            diferençaDias += 30;
-            diferençaMeses--;
-          }
-
-          //arredondar os minutos para cima conforme solicitado
-          if (diferençaMinutos > 0) 
-            diferençaHoras++;
-          
-          preço = diferençaMeses * 30 * 24 * 5 + diferençaDias * 24 * 5 + diferençaHoras * 5 + diferençaMinutos * 5 / 60;
-
-          
-          preço = "R$ " + preço.toFixed(2);
-        }
-        catch{
-          return toast.warn("Preencha corretamente os campos de entrada e saída ");
-        }
-        
-      }
-
       //CREATE
       await axios
       .post("http://localhost:8800", {
         placa: user.placa.value,
         entrada: user.entrada.value,
         saida: user.saida.value,
-        valor: preço // passando o valor aqui
+        valor: preço 
       })
       .then(({ data }) => toast.success(data))
       .catch(({ data }) => toast.error(data));
