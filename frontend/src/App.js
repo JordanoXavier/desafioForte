@@ -23,10 +23,11 @@ function App() {
   const [users, setUsers] = useState([]); // Array de usuários
   const [onEdit, setOnEdit] = useState(null); // Se onEdit for diferente de null, ele vai editar o usuário, se não, ele vai criar um novo usuário
 
+  //READ
   const getUsers = async () => { // Função que vai pegar todos os usuários
     try {
       const res = await axios.get("http://localhost:8800");
-      setUsers(res.data);
+      setUsers(res.data); // setando o array de usuários
     } catch (error) {
       toast.error(error);
     }
@@ -39,11 +40,11 @@ function App() {
   return (
     <>
       <Container>
-        <Title>Inserir carro</Title>
-        <Form onEdit={onEdit} setOnEdit={setOnEdit} getUsers={getUsers} /> {/* Passando a getUsers pro Form*/}
-        <Grid setOnEdit={setOnEdit} users={users} setUsers={setUsers} /> {/* Passando pro grid*/}
+        <Title>Inserir carro no estacionamento</Title>
+        <Form onEdit={onEdit} setOnEdit={setOnEdit} getUsers={getUsers} /> 
+        <Grid setOnEdit={setOnEdit} users={users} setUsers={setUsers} /> 
       </Container>
-      <ToastContainer autoClose={3000} position={toast.POSITION.BOTTOM_LEFT} /> {/* notificação do Toastify*/}
+      <ToastContainer autoClose={3000} position={toast.POSITION.BOTTOM_RIGHT} /> {/* notificação do Toastify*/}
       <GlobalStyle />
     </>
   );

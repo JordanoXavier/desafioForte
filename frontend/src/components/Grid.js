@@ -42,16 +42,17 @@ export const Td = styled.td`
 
 const Grid = ({ users, setUsers, setOnEdit }) => { 
   const handleEdit = (item) => { // Função para editar
-    setOnEdit(item);
+    setOnEdit(item); //atualiza o estado do item com OnEdit pra que lá no Form ele atualize com as novas informações
   };
 
-  const handleDelete = async (id) => { // Função para deletar
+  //DELETE
+  const handleDelete = async (id) => { 
     await axios
       .delete("http://localhost:8800/" + id)
       .then(({ data }) => {
         const newArray = users.filter((user) => user.id !== id); // Filtra o array de veiculos e retorna um novo array sem o usuário que foi deletado
 
-        setUsers(newArray);
+        setUsers(newArray); 
         toast.success(data);
       })
       .catch(({ data }) => toast.error(data));
@@ -65,22 +66,25 @@ const Grid = ({ users, setUsers, setOnEdit }) => {
         <Tr>
           <Th>Placa</Th>
           <Th>Entrada</Th>
-          <Th onlyWeb>Saída</Th>
-          <Th></Th>
-          <Th></Th>
+          <Th>Saída</Th>
+          <Th>Valor</Th>
+          <Th></Th> {/* Coluna vazia para o botão de editar */}
+          <Th></Th> {/* Coluna vazia para o botão de deletar */}
         </Tr>
       </Thead>
+
       <Tbody>
         {users.map((item, i) => ( // Percorre o array de veiculos e retorna uma linha para cada veiculo
           <Tr key={i}>
-            <Td width="30%">{item.placa}</Td>
-            <Td width="30%">{item.entrada}</Td>
-            <Td width="30%">{item.saida}</Td>
-            <Td alignCenter width="5%">
-              <FaEdit onClick={() => handleEdit(item)} />
+            <Td >{item.placa}</Td>
+            <Td >{item.entrada}</Td>
+            <Td >{item.saida}</Td>
+            <Td >{item.valor}</Td>
+            <Td alignCenter >
+              <FaEdit onClick={() => handleEdit(item)} /> {/* Chama a função handleEdit passando o veiculo que quer editar como parâmetro */}
             </Td>
-            <Td alignCenter width="5%">
-              <FaTrash onClick={() => handleDelete(item.id)} />
+            <Td alignCenter >
+              <FaTrash onClick={() => handleDelete(item.id)} /> {/* Chama a função handleDelete passando o id do veiculo que quer deletar como parâmetro */}
             </Td>
           </Tr>
         ))}
