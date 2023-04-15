@@ -43,60 +43,61 @@ const Button = styled.button`
 
 const calcularPreco = (user) => {
   let preço;
-      try{
-        //separando hora:min e dia/mês
-        let entrada = user.entrada.value.split("-");
-        let saida = user.saida.value.split("-");
+  try {
+    //separando hora:min e dia/mês
+    let entrada = user.entrada.value.split("-");
+    let saida = user.saida.value.split("-");
 
-        let entradaHora = entrada[0].split(":");
-        let saidaHora = saida[0].split(":");
+    let entradaHora = entrada[0].split(":");
+    let saidaHora = saida[0].split(":");
 
-        let entradaDia = entrada[1].split("/");
-        let saidaDia = saida[1].split("/");
+    let entradaDia = entrada[1].split("/");
+    let saidaDia = saida[1].split("/");
 
-        //separando hora e min
-        let entradaMin = entradaHora[1];
-        let saidaMin = saidaHora[1];
-        entradaHora = entradaHora[0];
-        saidaHora = saidaHora[0];
+    //separando hora e min
+    let entradaMin = entradaHora[1];
+    let saidaMin = saidaHora[1];
+    entradaHora = entradaHora[0];
+    saidaHora = saidaHora[0];
 
-        //separando dia e mês
-        let entradaMes = entradaDia[1];
-        let saidaMes = saidaDia[1];
-        entradaDia = entradaDia[0];
-        saidaDia = saidaDia[0];
+    //separando dia e mês
+    let entradaMes = entradaDia[1];
+    let saidaMes = saidaDia[1];
+    entradaDia = entradaDia[0];
+    saidaDia = saidaDia[0];
 
 
-        //calculando a diferença entre a entrada e a saída
-        let diferençaDias = saidaDia - entradaDia;
-        let diferençaMeses = saidaMes - entradaMes;
-        let diferençaHoras = saidaHora - entradaHora;
-        let diferençaMinutos = saidaMin - entradaMin;
-        if (diferençaMinutos < 0) {
-          diferençaMinutos += 60;
-          diferençaHoras--;
-        }
-        if (diferençaHoras < 0) {
-          diferençaHoras += 24;
-          diferençaDias--;
-        }
-        if (diferençaDias < 0) {
-          diferençaDias += 30;
-          diferençaMeses--;
-        }
+    //calculando a diferença entre a entrada e a saída
+    let diferençaDias = saidaDia - entradaDia;
+    let diferençaMeses = saidaMes - entradaMes;
+    let diferençaHoras = saidaHora - entradaHora;
+    let diferençaMinutos = saidaMin - entradaMin;
+    if (diferençaMinutos < 0) {
+      diferençaMinutos += 60;
+      diferençaHoras--;
+    }
+    if (diferençaHoras < 0) {
+      diferençaHoras += 24;
+      diferençaDias--;
+    }
+    if (diferençaDias < 0) {
+      diferençaDias += 30;
+      diferençaMeses--;
+    }
 
-        if (diferençaMinutos > 0){ //arredondar os minutos para cima conforme solicitado
-          diferençaHoras++;
-          diferençaMinutos = 0;
-        } 
-        
-        preço = diferençaMeses * 30 * 24 * 5 + diferençaDias * 24 * 5 + diferençaHoras * 5 + diferençaMinutos * 5 / 60;
+    if (diferençaMinutos > 0) { //arredondar os minutos para cima conforme solicitado
+      diferençaHoras++;
+      diferençaMinutos = 0;
+    }
 
-        preço = "R$ " + preço.toFixed(2);
-      }
-      catch{
-        return 0;
-      }  
+    diferençaHoras += diferençaDias * 24 + diferençaMeses * 30 * 24; //converter tudo pra horas
+    preço = diferençaHoras * 5; //valor da hora 5 reais fixo
+
+    preço = "R$ " + preço.toFixed(2);
+  }
+  catch {
+    return 0;
+  }
   return preço;
 }
 
@@ -126,9 +127,9 @@ const Form = ({ getUsers, onEdit, setOnEdit }) => {
     }
 
     let preço;
-    if (user.saida.value){ //se tiver a hora de saida
+    if (user.saida.value) { //se tiver a hora de saida
       preço = calcularPreco(user); //vai calcular o valor a ser pago, se possível
-      if (preço==0) 
+      if (preço == 0)
         return toast.warn("Preencha corretamente os campos de entrada e saída ");
     }
 
@@ -140,26 +141,26 @@ const Form = ({ getUsers, onEdit, setOnEdit }) => {
           placa: user.placa.value,
           entrada: user.entrada.value,
           saida: user.saida.value,
-          valor : preço //valor calculado acima
+          valor: preço //valor calculado acima
         })
         .then(({ data }) => toast.success(data)) //data é a mensagem de sucesso que vem do backend 
         .catch(({ data }) => toast.error(data));
 
-    } else { 
+    } else {
       //CREATE
       await axios
-      .post("http://localhost:8800", {
-        placa: user.placa.value,
-        entrada: user.entrada.value,
-        saida: user.saida.value,
-        valor: preço 
-      })
-      .then(({ data }) => toast.success(data))
-      .catch(({ data }) => toast.error(data));
+        .post("http://localhost:8800", {
+          placa: user.placa.value,
+          entrada: user.entrada.value,
+          saida: user.saida.value,
+          valor: preço
+        })
+        .then(({ data }) => toast.success(data))
+        .catch(({ data }) => toast.error(data));
     }
-    
+
     //limpando os campos do formulário após o submit do formulário
-    user.placa.value = ""; 
+    user.placa.value = "";
     user.entrada.value = "";
     user.saida.value = "";
 
@@ -171,17 +172,17 @@ const Form = ({ getUsers, onEdit, setOnEdit }) => {
     <FormContainer ref={ref} onSubmit={handleSubmit}>
       <InputArea>
         <Label>Placa</Label>
-        <Input name="placa"/>
+        <Input name="placa" />
       </InputArea>
       <InputArea>
         <Label>Entrada</Label>
-        <Input name="entrada" placeholder="h:min-dia/mês"/>
+        <Input name="entrada" placeholder="h:min-dia/mês" />
       </InputArea>
       <InputArea>
-        <Label>Saída</Label> 
-        <Input name="saida" placeholder="h:min-dia/mês"/>
+        <Label>Saída</Label>
+        <Input name="saida" placeholder="h:min-dia/mês" />
       </InputArea>
-   
+
       <Button type="submit">SALVAR</Button>
     </FormContainer>
   );
