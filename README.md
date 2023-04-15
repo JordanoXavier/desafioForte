@@ -34,6 +34,6 @@ Com os packages instalados e com o banco de dados funcionando, será possível i
 npm start
 ```
 Pronto, a aplicação já estará rodando em http://localhost:3000/ conforme a imagem abaixo.
-<div align="center>
-<img src="https://user-images.githubusercontent.com/112017191/232214060-6e15d7a7-a9ca-4e93-af62-71797ebfaa95.jpg">
+<div align="center">
+<img src="https://user-images.githubusercontent.com/112017191/232214060-6e15d7a7-a9ca-4e93-af62-71797ebfaa95.jpg" width="700px" />
 </div>
